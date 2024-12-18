@@ -10,7 +10,7 @@
 #include <unistd.h>
 
 #define EEPROM_ADDRESS 0x50 // Justera efter din EEPROM-adress
-#define EEPROM_SIZE 8192    // Exempelstorlek, justera efter din EEPROM
+#define EEPROM_SIZE 2048    // Exempelstorlek, justera efter din EEPROM
 #define PAGE_SIZE 64        // Exempel sidstorlek, justera efter din EEPROM
 
 static int file;
