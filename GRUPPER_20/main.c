@@ -33,7 +33,7 @@ void* temperature_thread(void* arg) {
 void* write_jokes_thread(void* arg) {
     while (1) {
         pthread_mutex_lock(&eeprom_mutex);
-        fill_eeprom(256);
+        fill_eeprom(8000);
         char joke[255] = "hello";
         if (write_joke(joke, strlen(joke)) != 0) {
             printf("Misslyckades att skriva skämt till EEPROM\n");
