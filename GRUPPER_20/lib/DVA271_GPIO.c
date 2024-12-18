@@ -25,6 +25,8 @@ static struct gpiod_line *clock_line;
 static struct gpiod_line *led23_line;
 static struct gpiod_line *led24_line;
 
+struct gpiod_line *clk_line;
+
 // Initialisera GPIO-chip
 int gpio_init_chip() {
     chip = gpiod_chip_open_by_name(CHIP_NAME);
