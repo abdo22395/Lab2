@@ -42,5 +42,5 @@ int main() {
     sleep(3); // Delay for 3 seconds
 
     printf("All tests completed.\n");
-    return EXIT_SUCCESS;
+    return 0;
 }
