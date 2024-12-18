@@ -48,7 +48,7 @@ int main() {
                     while (getchar() != '\n'); // Clear the input buffer
                     break; // Exit this case
                 }
-                test_hc595(fake _temp);
+                test_hc595(fake_temp);
                 break;
             }
             case 3:
