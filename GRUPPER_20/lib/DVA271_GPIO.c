@@ -1,3 +1,5 @@
+// lib/DVA271_GPIO.c
+
 #include "DVA271_GPIO.h"
 #include <gpiod.h>
 #include <stdio.h>
@@ -63,20 +65,6 @@ int hc595_init() {
     if (!data_line || !latch_line || !clock_line) {
         perror("Failed to get HC595 lines");
         return 2;
-    }
-
-    // Se till att alla pinnar är låsta
-    if (gpiod_line_request_output(data_line, "hc595_data", 0) < 0) {
-        perror("Failed to request data line");
-        return 3;
-    }
-    if (gpiod_line_request_output(latch_line, "hc595_latch", 0) < 0) {
-        perror("Failed to request latch line");
-        return 3;
-    }
-    if (gpiod_line_request_output(clock_line, "hc595_clock", 0) < 0) {
-        perror("Failed to request clock line");
-        return 3;
     }
 
     // Initiera shift register till noll
