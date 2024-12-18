@@ -9,6 +9,7 @@
 #include <time.h>
 #define LED_PIN_23 23
 #define LED_PIN_24 24
+#define EEPROM_SIZE 256
 
 
 // Globala variabler och mutex
