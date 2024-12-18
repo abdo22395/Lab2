@@ -1,5 +1,5 @@
 #include "DVA271_EEPROM.h"
-#include <wiringPiI2C.h>
+#include "wiringPiI2C.h"
 #include <stdio.h>
 #include <unistd.h>
 #include <string.h>
