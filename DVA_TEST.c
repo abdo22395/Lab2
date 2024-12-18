@@ -51,7 +51,7 @@ int init(int flag) {
 // Function to test LEDs by blinking them for 10 seconds
 int test_leds() {
     // Define the GPIO  for the LED
-    int led_ = 0; // Change this to the appropriate  number for your LED
+    int led_ = 23; // Change this to the appropriate  number for your LED
 
     // Initialize the LED  as output
     gpio_init(led_, true);
