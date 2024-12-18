@@ -7,6 +7,9 @@
 #include <unistd.h>
 #include <string.h>
 #include <time.h>
+#define LED_PIN_23 23
+#define LED_PIN_24 24
+
 
 // Globala variabler och mutex
 pthread_mutex_t eeprom_mutex;
