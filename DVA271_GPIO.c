@@ -1,7 +1,7 @@
 #include "DVA271_GPIO.h"
 #include <stdio.h>
 #include <stdlib.h>
-#include <wiringPi.h>
+#include "wiringPi.h"
 
 // Define the GPIO pins used for the HC595
 #define HC595_DATA_PIN 16  // Data pin (DS)
