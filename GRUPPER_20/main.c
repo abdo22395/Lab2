@@ -1,6 +1,6 @@
 #include "lib/DVA_TEST.h"
-#include "DVA271_EEPROM.h"
-#include "DVA271_GPIO.h"
+#include "lib/DVA271_EEPROM.h"
+#include "lib/DVA271_GPIO.h"
 #include <stdio.h>
 #include <string.h>
 #include <signal.h>
