@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include "DVA_TEST.h"       // Include your test header
 #include "DVA271_GPIO.h"    // Include GPIO functions
 #include "DVA271_CPU.h"     // Include CPU functions
@@ -8,6 +9,7 @@
 int main() {
     int choice;
     int flag = 0; // Set to 1 for verbose output
+    char input[100]; // Buffer for user input
 
     // Initialize components
     if (init(flag) != 0) {
@@ -26,15 +28,17 @@ int main() {
         printf("6. Exit\n");
         printf("Enter your choice: ");
 
-        // Check for valid input
-        if (scanf("%d", &choice) != 1) {
-            printf("Invalid input. Please enter a number.\n");
-            while (getchar() != '\n'); // Clear the input buffer
+        // Get user input using fgets
+        if (fgets(input, sizeof(input), stdin) == NULL) {
+            printf("Error reading input. Please try again.\n");
             continue; // Restart the loop
         }
 
-        // Clear the input buffer after reading choice
-        while (getchar() != '\n'); // Clear any remaining input
+        // Parse the input
+        if (sscanf(input, "%d", &choice) != 1) {
+            printf("Invalid input. Please enter a number.\n");
+            continue; // Restart the loop
+        }
 
         switch (choice) {
             case 1:
@@ -46,9 +50,8 @@ int main() {
                 // Test HC595 with a fake temperature
                 int fake_temp;
                 printf("Enter a fake temperature (0-255): ");
-                if (scanf("%d", &fake_temp) != 1 || fake_temp < 0 || fake_temp > 255) {
+                if (fgets(input, sizeof(input), stdin) == NULL || sscanf(input, "%d", &fake_temp) != 1 || fake_temp < 0 || fake_temp > 255) {
                     printf("Invalid temperature. Please enter a number between 0 and 255.\n");
-                    while (getchar() != '\n'); // Clear the input buffer
                     break; // Exit this case
                 }
                 test_hc595(fake_temp);
