@@ -22,6 +22,10 @@ int clear_eeprom(int ki_length); // Clear EEPROM up to ki_length kibibytes
 
 int fill_eeprom(int ki_length);  // Fill EEPROM with 1 up to ki_length kibibytes
 
+// Function prototypes
+int eeprom_write(int address, uint8_t *data, int length);
+int eeprom_read(int address, uint8_t *buffer, int length);
+
 
 
 
