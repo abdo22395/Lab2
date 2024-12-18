@@ -2,7 +2,6 @@
 
 #include <stdio.h>
 #include <pthread.h>
-#include "sched.h"
 #include <unistd.h>
 #include <stdlib.h>
 #include <string.h>
@@ -76,14 +75,7 @@ int main() {
         return 1;
     }
 
-    // Isolera programmet till CPU Core 3
-    cpu_set_t cpuset;
-    CPU_ZERO(&cpuset);
-    CPU_SET(3, &cpuset);
-    if (sched_setaffinity(0, sizeof(cpu_set_t), &cpuset) != 0) {
-        perror("sched_setaffinity");
-        return 1;
-    }
+
 
     // Initialisera hårdvara
     if (eeprom_setup() != 0) {
