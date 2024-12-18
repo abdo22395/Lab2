@@ -33,6 +33,9 @@ int main() {
             continue; // Restart the loop
         }
 
+        // Clear the input buffer after reading choice
+        while (getchar() != '\n'); // Clear any remaining input
+
         switch (choice) {
             case 1:
                 // Test LEDs
