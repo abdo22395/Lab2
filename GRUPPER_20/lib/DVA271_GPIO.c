@@ -38,7 +38,7 @@ int gpio_init_chip() {
 }
 
 // Initialisera en GPIO pin som input eller output
-int gpio_init(int pin, bool output) {
+int gpio_init() {
     data_line = gpiod_chip_get_line(chip, HC595_DATA_PIN);
     clk_line = gpiod_chip_get_line(chip, HC595_CLOCK_PIN);
     latch_line = gpiod_chip_get_line(chip, HC595_LATCH_PIN);
