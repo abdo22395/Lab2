@@ -20,6 +20,33 @@ const char *jokes[] = {
     "What do you call a fish wearing a bowtie? Sofishticated!"
 };
 
+
+int eeprom_write(int address, uint8_t *data, int length) {
+    if (length <= 0 || length > 32) { // Assuming a maximum write length of 32 bytes
+        return -1; // Return -1 for invalid length
+    }
+
+    // Write data to EEPROM
+    for (int i = 0; i < length; i++) {
+        wiringPiI2CWriteReg8(eeprom_fd, address + i, data[i]);
+    }
+
+    return 0; // Return 0 on success
+}
+
+// Function to read data from EEPROM
+int eeprom_read(int address, uint8_t *buffer, int length) {
+    if (length <= 0 || length > 32) { // Assuming a maximum read length of 32 bytes
+        return -1; // Return -1 for invalid length
+    }
+
+    // Read data from EEPROM
+    for (int i = 0; i < length; i++) {
+        buffer[i] = wiringPiI2CReadReg8(eeprom_fd, address + i);
+    }
+
+    return 0; // Return 0 on success
+}
 // Initialize the EEPROM for reading or writing
 int eeprom_setup() {
     if (eeprom_fd == -1) {
