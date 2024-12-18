@@ -1,39 +1,137 @@
-#include "lib/DVA_TEST.h"
-#include <stdio.h>
-#include <string.h>
-#include <signal.h>
-#include <stdlib.h>
+// main.c
 
-// Funktion för att hantera avbrottssignaler
-void cleanup(int signum) {
-    printf("Avslutar programmet...\n");
-    close_gpio_chip();
-    exit(0);
+#include <stdio.h>
+#include <pthread.h>
+#include <sched.h>
+#include <unistd.h>
+#include <stdlib.h>
+#include <string.h>
+#include "lib/DVA271_EEPROM.h"
+#include "lib/DVA271_GPIO.h"
+#include "lib/DVA_TEST.h"
+
+// Mutex för EEPROM-åtkomst
+pthread_mutex_t eeprom_mutex;
+
+// Funktioner för trådar
+void* temperature_thread(void* arg) {
+    while (1) {
+        pthread_mutex_lock(&eeprom_mutex);
+        float temp = get_cpu_temperature(); // Implementera denna funktion
+        if (temp <= 85.0) {
+            // Stäng av alla LEDs
+            set_led_state(0, 0);
+        } else {
+            // Tänd alla LEDs
+            set_led_state(1, 1);
+        }
+        pthread_mutex_unlock(&eeprom_mutex);
+        sleep(2); // Justera efter behov
+    }
+    return NULL;
 }
 
-int main(int argc, char *argv[]) {
-    // Hantera signaler för korrekt stängning
-    signal(SIGINT, cleanup);
-    signal(SIGTERM, cleanup);
-
-    int flag = 0;
-    if (argc > 1 && strcmp(argv[1], "verbose") == 0) {
-        flag = 1;
+void* write_jokes_thread(void* arg) {
+    while (1) {
+        pthread_mutex_lock(&eeprom_mutex);
+        char joke[255] = "Varför kan inte cyklar stå upp själva? För att de är tvåhjuliga!";
+        if (write_joke(joke, strlen(joke)) != 0) {
+            printf("Misslyckades att skriva skämt till EEPROM\n");
+        }
+        pthread_mutex_unlock(&eeprom_mutex);
+        sleep(10); // Justera efter behov
     }
+    return NULL;
+}
 
-    if (init(flag) != 0) {
-        printf("Initialisering misslyckades.\n");
+void* read_jokes_thread(void* arg) {
+    while (1) {
+        pthread_mutex_lock(&eeprom_mutex);
+        char* joke;
+        if (get_joke(0, &joke) == 0) { // 0 kan representera den första vitsen
+            printf("Läst skämt: %s\n", joke);
+            free(joke);
+        } else {
+            printf("Ingen skämt hittades eller läsfel\n");
+        }
+        pthread_mutex_unlock(&eeprom_mutex);
+        sleep(10); // Justera efter behov
+    }
+    return NULL;
+}
+
+void* led_blink_thread(void* arg) {
+    int pin = *(int*)arg;
+    while (1) {
+        flip_pin(pin);
+        usleep(100000); // 100 ms
+    }
+    return NULL;
+}
+
+int main() {
+    // Initialisera mutex
+    if (pthread_mutex_init(&eeprom_mutex, NULL) != 0) {
+        printf("Mutex init misslyckades\n");
         return 1;
     }
 
-    // Kör multithread-programmet
-    if (multithread_fun() != 0) {
-        printf("Multithread-programmet misslyckades.\n");
+    // Isolera programmet till CPU Core 3
+    cpu_set_t cpuset;
+    CPU_ZERO(&cpuset);
+    CPU_SET(3, &cpuset);
+    if (sched_setaffinity(0, sizeof(cpu_set_t), &cpuset) != 0) {
+        perror("sched_setaffinity");
         return 1;
     }
 
-    // Stäng GPIO-chip vid avslut
-    close_gpio_chip();
+    // Initialisera hårdvara
+    if (eeprom_setup() != 0) {
+        printf("EEPROM setup misslyckades\n");
+        return 1;
+    }
 
+    if (hc595_init() != 0) {
+        printf("HC595 init misslyckades\n");
+        return 1;
+    }
+
+    // Skapa trådar
+    pthread_t temp_thread, write_thread, read_thread, led1_thread, led2_thread;
+    if (pthread_create(&temp_thread, NULL, temperature_thread, NULL) != 0) {
+        printf("Misslyckades att skapa temperature_thread\n");
+        return 1;
+    }
+
+    if (pthread_create(&write_thread, NULL, write_jokes_thread, NULL) != 0) {
+        printf("Misslyckades att skapa write_jokes_thread\n");
+        return 1;
+    }
+
+    if (pthread_create(&read_thread, NULL, read_jokes_thread, NULL) != 0) {
+        printf("Misslyckades att skapa read_jokes_thread\n");
+        return 1;
+    }
+
+    int led1 = 23, led2 = 24;
+    if (pthread_create(&led1_thread, NULL, led_blink_thread, &led1) != 0) {
+        printf("Misslyckades att skapa led1_thread\n");
+        return 1;
+    }
+
+    if (pthread_create(&led2_thread, NULL, led_blink_thread, &led2) != 0) {
+        printf("Misslyckades att skapa led2_thread\n");
+        return 1;
+    }
+
+    // Vänta på trådarna (de körs i oändlighet)
+    pthread_join(temp_thread, NULL);
+    pthread_join(write_thread, NULL);
+    pthread_join(read_thread, NULL);
+    pthread_join(led1_thread, NULL);
+    pthread_join(led2_thread, NULL);
+
+    // Destruktera mutex
+    pthread_mutex_destroy(&eeprom_mutex);
     return 0;
 }
