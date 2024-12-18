@@ -8,6 +8,9 @@
 #include <unistd.h>
 #include <time.h>
 
+#DEFINE HIGH 1
+#DEFINE LOW 0
+
 
 // Function to initialize necessary components
 int init(int flag) {
