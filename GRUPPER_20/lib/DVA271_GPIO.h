@@ -8,7 +8,7 @@
 int gpio_init_chip();
 int hc595_init();
 int temp_indicate(float temperature);
-int gpio_init(int pin, bool output);
+int gpio_init();
 int flip_pin(int pin);
 int hc595_send_byte(unsigned char byte);
 int set_pin_value(int pin, int value); // Ny funktion för att sätta ett specifikt värde
