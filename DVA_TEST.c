@@ -104,33 +104,34 @@ int test_hc595(int fake_temp) {
 }
 
 // Function to test writing to EEPROM
-int test_write() {
-    uint8_t predetermined_value = 0xAB; // Example predetermined value to write
-    uint16_t eeprom_address = 0x00; // Starting address in EEPROM
+void test_write() {
+    // Example joke to write
+    uint8_t joke_data[JOKE_LENGTH] = "Why did the bicycle fall over? Because it was two-tired!";
+    int address = 0; // Starting address in EEPROM
 
-    // Write the predetermined value to EEPROM
-    int result = eeprom_write(eeprom_address, predetermined_value); // Assuming eeprom_write is defined in DVA271_EEPROM.h
-    if (result != 0) {
-        printf("ERROR: Failed to write to EEPROM at address 0x%04X.\n", eeprom_address);
-        return result; // Return error code
+    // Old write function call (to be updated)
+    // old_eeprom_write(address, joke_data, strlen((char *)joke_data));
+
+    // Updated write function call
+    if (eeprom_write(address, joke_data, strlen((char *)joke_data)) == 0) {
+        printf("Joke written successfully!\n");
+    } else {
+        printf("Failed to write joke to EEPROM.\n");
     }
-
-    printf("Successfully wrote 0x%02X to EEPROM at address 0x%04X.\n", predetermined_value, eeprom_address);
-    return 0; // Return 0 on success
 }
 
-// Function to test reading from EEPROM
-int test_read() {
-    uint8_t read_value; // Variable to store the read value
-    uint16_t eeprom_address = 0x00; // Address to read from in EEPROM
+void test_read() {
+    // Buffer to hold the read joke
+    uint8_t buffer[JOKE_LENGTH];
+    int address = 0; // Starting address in EEPROM
 
-    // Read the value from EEPROM
-    int result = eeprom_read(eeprom_address, &read_value); // Assuming eeprom_read is defined in DVA271_EEPROM.h
-    if (result != 0) {
-        printf("ERROR: Failed to read from EEPROM at address 0x%04X.\n", eeprom_address);
-        return result; // Return error code
+    // Old read function call (to be updated)
+    // old_eeprom_read(address, buffer, sizeof(buffer));
+
+    // Updated read function call
+    if (eeprom_read(address, buffer, sizeof(buffer)) == 0) {
+        printf("Joke read from EEPROM: %s\n", buffer);
+    } else {
+        printf("Failed to read joke from EEPROM.\n");
     }
-
-    printf("Successfully read 0x%02X from EEPROM at address 0x%04X.\n", read_value, eeprom_address);
-    return 0; // Return 0 on success
 }
