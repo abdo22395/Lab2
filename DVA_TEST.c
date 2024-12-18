@@ -11,6 +11,10 @@
 #define HIGH 1
 #define LOW 0
 
+#define HC595_DATA_PIN 16
+#define HC595_CLOCK_PIN 21
+#define HC595_LATCH_PIN 20
+
 
 // Function to initialize necessary components
 int init(int flag) {
@@ -46,22 +50,22 @@ int init(int flag) {
 
 // Function to test LEDs by blinking them for 10 seconds
 int test_leds() {
-    // Define the GPIO pin for the LED
-    int led_pin = 0; // Change this to the appropriate pin number for your LED
+    // Define the GPIO  for the LED
+    int led_ = 0; // Change this to the appropriate  number for your LED
 
-    // Initialize the LED pin as output
-    gpio_init(led_pin, true);
+    // Initialize the LED  as output
+    gpio_init(led_, true);
 
     // Blink the LED for 10 seconds
     for (int i = 0; i < 10; i++) {
-        digitalWrite(led_pin, HIGH); // Turn LED on
+        digitalWrite(led_, HIGH); // Turn LED on
         usleep(500000); // Wait for 500 milliseconds
-        digitalWrite(led_pin, LOW); // Turn LED off
+        digitalWrite(led_, LOW); // Turn LED off
         usleep(500000); // Wait for another 500 milliseconds
     }
 
     // Turn off the LED at the end
-    digitalWrite(led_pin, LOW);
+    digitalWrite(led_, LOW);
 
     return 0; // Return 0 on success
 }
@@ -74,7 +78,7 @@ int test_hc595(int fake_temp) {
         return -1; // Return error code for invalid temperature
     }
 
-    // Initialize the HC595 pins
+    // Initialize the HC595 s
     gpio_init(HC595_DATA_PIN, true);
     gpio_init(HC595_CLOCK_PIN, true);
     gpio_init(HC595_LATCH_PIN, true);
