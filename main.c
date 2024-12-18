@@ -25,7 +25,13 @@ int main() {
         printf("5. Indicate CPU Temperature using HC595\n");
         printf("6. Exit\n");
         printf("Enter your choice: ");
-        scanf("%d", &choice);
+
+        // Check for valid input
+        if (scanf("%d", &choice) != 1) {
+            printf("Invalid input. Please enter a number.\n");
+            while (getchar() != '\n'); // Clear the input buffer
+            continue; // Restart the loop
+        }
 
         switch (choice) {
             case 1:
@@ -37,8 +43,12 @@ int main() {
                 // Test HC595 with a fake temperature
                 int fake_temp;
                 printf("Enter a fake temperature (0-255): ");
-                scanf("%d", &fake_temp);
-                test_hc595(fake_temp);
+                if (scanf("%d", &fake_temp) != 1 || fake_temp < 0 || fake_temp > 255) {
+                    printf("Invalid temperature. Please enter a number between 0 and 255.\n");
+                    while (getchar() != '\n'); // Clear the input buffer
+                    break; // Exit this case
+                }
+                test_hc595(fake _temp);
                 break;
             }
             case 3:
