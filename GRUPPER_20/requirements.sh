@@ -1,5 +1,6 @@
 #!/bin/bash
+# requirements.sh
 
-# Installera nödvändiga paket
-sudo apt update
-sudo apt --assume-yes install gcc gpiod libgpiod-dev
+# Uppdatera paketlistan och installera nödvändiga paket
+sudo pacman -Syu --noconfirm
+sudo pacman -S --noconfirm gcc make gpiod i2c-tools
