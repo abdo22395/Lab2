@@ -7,7 +7,6 @@
 
 // Definiera GPIO-chip
 #define CHIP_NAME "gpiochip0"
-#define GPIO_CHIP_NUMBER 0
 
 // GPIO-pinnar för HC595
 #define HC595_DATA_PIN 17
@@ -25,8 +24,6 @@ static struct gpiod_line *clock_line;
 static struct gpiod_line *led23_line;
 static struct gpiod_line *led24_line;
 
-struct gpiod_line *clk_line;
-
 // Initialisera GPIO-chip
 int gpio_init_chip() {
     chip = gpiod_chip_open_by_name(CHIP_NAME);
@@ -38,20 +35,44 @@ int gpio_init_chip() {
 }
 
 // Initialisera en GPIO pin som input eller output
-int gpio_init() {
-    data_line = gpiod_chip_get_line(chip, HC595_DATA_PIN);
-    clk_line = gpiod_chip_get_line(chip, HC595_CLOCK_PIN);
-    latch_line = gpiod_chip_get_line(chip, HC595_LATCH_PIN);
-
-    if (!data_line || ! clk_line || !latch_line) {
-        perror("Get line failed"); // Error getting lines
-        gpiod_chip_close(chip); // Close
-        return -1;
+int gpio_init(int pin, bool output) {
+    struct gpiod_line *line = gpiod_chip_get_line(chip, pin);
+    if (!line) {
+        perror("Failed to get GPIO line");
+        return 1;
     }
-// Set lines as output
-    gpiod_line_request_output(data_line, "my_shift", 0);
-    gpiod_line_request_output(clk_line, "my_shift", 0);
-    gpiod_line_request_output(latch_line, "my_shift", 0);
+    int ret;
+    if (output) {
+        ret = gpiod_line_request_output(line, "gpio_app", 0);
+    } else {
+        ret = gpiod_line_request_input(line, "gpio_app");
+    }
+    if (ret < 0) {
+        perror("Failed to request GPIO line");
+        return 2;
+    }
+
+    // Spara linjepekaren om det är en känd pin
+    switch(pin) {
+        case HC595_DATA_PIN:
+            data_line = line;
+            break;
+        case HC595_LATCH_PIN:
+            latch_line = line;
+            break;
+        case HC595_CLOCK_PIN:
+            clock_line = line;
+            break;
+        case LED_PIN_23:
+            led23_line = line;
+            break;
+        case LED_PIN_24:
+            led24_line = line;
+            break;
+        default:
+            // Okänd pin, gör inget
+            break;
+    }
 
     return 0;
 }
