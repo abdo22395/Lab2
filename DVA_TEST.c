@@ -8,8 +8,8 @@
 #include <unistd.h>
 #include <time.h>
 
-#DEFINE HIGH 1
-#DEFINE LOW 0
+#define HIGH 1
+#define LOW 0
 
 
 // Function to initialize necessary components
