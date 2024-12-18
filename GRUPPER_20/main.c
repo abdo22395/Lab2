@@ -17,7 +17,7 @@ int main(int argc, char *argv[]) {
 
     int flag = 1; // Enable verbose output
 
-    int gpio_init_chip()
+    gpio_init_chip();
 
     // Initialize all systems
     if (init(flag) != 0) {
