@@ -1,6 +1,6 @@
 #!/bin/bash
+# launchme.sh
 
-# Kör programmet och bind det till CPU Core 3
-taskset -c 3 ./dva271main &
-
-echo "Programmet körs på CPU Core 3."
+# Starta programmet på CPU Core 3
+taskset -c 3 ./bin/dva271main &
+echo "Programmet startat på CPU Core 3"
