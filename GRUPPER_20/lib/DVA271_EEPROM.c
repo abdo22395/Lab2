@@ -15,6 +15,7 @@
 #define PAGE_SIZE 64        // Exempel sidstorlek, justera efter din EEPROM
 
 static int file;
+static char buffer;
 
 // Funktion för att skriva till I2C
 static int i2c_write_data(unsigned short address, unsigned char *data, int length) {
