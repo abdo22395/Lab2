@@ -19,7 +19,7 @@ void* write_jokes_thread(void* arg) {
         pthread_mutex_lock(&eeprom_mutex);
         char joke[255];
         memset(joke, 0, sizeof(joke));
-        strcpy(joke, "hello this is grupp 20 hi daniel"'\0');
+        strcpy(joke, "hello this is grupp 20 hi daniel\0");
         if (write_joke(joke, strlen(joke)) != 0) {
             printf("Misslyckades att skriva skämt till EEPROM\n");
         }
