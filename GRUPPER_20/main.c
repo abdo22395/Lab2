@@ -13,30 +13,49 @@
 pthread_mutex_t eeprom_mutex;
 
 void* write_jokes_thread(void* arg) {
+    // An array of jokes to alternate between
+    const char *jokes[] = {
+        "Why did the programmer quit his job? Because he didn't get arrays!",
+        "There are 10 types of people in the world: those who understand binary, and those who don't.",
+        "A SQL query goes into a bar, walks up to two tables and asks, 'Can I join you?'",
+        "Why do programmers always mix up Halloween and Christmas? Because Oct 31 == Dec 25!"
+    };
+    int num_jokes = sizeof(jokes) / sizeof(jokes[0]);
+
+    // Keep track of which joke to write each time
+    int joke_index = 0;
+
     while (1) {
         pthread_mutex_lock(&eeprom_mutex);
 
+        // Select the current joke
+        const char *current_joke = jokes[joke_index];
+
+        // Copy the joke into the buffer and pad with zeros if needed
         char arr[255];
-        memset(arr, 0, 255);
-        // Your joke can be any string. Let's use a short example:
-        const char *joke = "Why did the programmer quit his job? Because he didn't get arrays!";
-        size_t joke_len = strlen(joke);
+        memset(arr, 0, sizeof(arr));
+        size_t joke_len = strlen(current_joke);
         if (joke_len > 255) {
-            // Truncate if too long
-            joke_len = 255;
+            joke_len = 255; // Truncate if too long
         }
-        memcpy(arr, joke, joke_len);
-        
+        memcpy(arr, current_joke, joke_len);
+
+        // Write the joke to the EEPROM
         if (write_joke(arr, (int)joke_len) != 0) {
             printf("Misslyckades att skriva skämt till EEPROM\n");
+        } else {
+            printf("Skämt skrivet: %s\n", current_joke);
         }
 
         pthread_mutex_unlock(&eeprom_mutex);
+
+        // Move to the next joke
+        joke_index = (joke_index + 1) % num_jokes;
+
         sleep(1); // Justera efter behov
     }
     return NULL;
 }
-
 void* read_jokes_thread(void* arg) {
     while (1) {
          sleep(1);
