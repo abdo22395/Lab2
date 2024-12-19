@@ -15,7 +15,6 @@
 #define PAGE_SIZE 64        // Exempel sidstorlek, justera efter din EEPROM
 
 static int file;
-static char buffer;
 
 // Funktion för att skriva till I2C
 static int i2c_write_data(unsigned short address, unsigned char *data, int length) {
@@ -106,9 +105,11 @@ int write_joke_pos(char arr[255], int joke_length, int pos) {
     int remaining = joke_length;       // Number of bytes left to write
     int offset = 0;                    // Offset into the data
 
-    while (remaining > 0) {
-        // Declare the buffer for the current page
+            // Declare the buffer for the current page
         unsigned char buffer[PAGE_SIZE];
+
+    while (remaining > 0) {
+
 
         // Determine how many bytes to write in this chunk
         int write_length = (remaining > PAGE_SIZE) ? PAGE_SIZE : remaining;
