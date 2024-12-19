@@ -71,23 +71,35 @@ int eeprom_setup() {
 int get_joke(int number, char **ptr) {
     if (number < 0) return -1;
 
-    set_wp(false);  // Ensure write protection is enabled
+    // For reading, write protection isn't usually an issue, but if needed:
+    // set_wp(true); // If true enables write-protection (assuming true means protection on)
+    // If write protection is irrelevant to reading, just omit this line.
 
     unsigned short address = number * 255;
-if (address >= EEPROM_SIZE) {
-    printf("Error: Address out of range\n");
-    return -1;
-}
-                // Declare the buffer for the current page
-        unsigned char buffer[PAGE_SIZE];
+    if (address + 255 > EEPROM_SIZE) {
+        printf("Error: Address out of range\n");
+        return -1;
+    }
 
+    unsigned char buffer[255]; // We'll read exactly 255 bytes of a joke
+    // Read the data from EEPROM into buffer
+    if (i2c_read_data(address, buffer, 255) != 0) {
+        printf("Error: Failed to read the joke from EEPROM\n");
+        return -1;
+    }
 
-    *ptr = malloc(256);
-    if (*ptr == NULL) return -1;
-    strncpy(*ptr, (char *)buffer, 255);
-    (*ptr)[255] = '\0';
+    // Allocate memory to return the joke
+    *ptr = malloc(256); // 255 bytes + null terminator
+    if (*ptr == NULL) {
+        printf("Error: Memory allocation failed\n");
+        return -1;
+    }
 
-    return 0;
+    // Copy the data into the allocated memory and add a null terminator
+    memcpy(*ptr, buffer, 255);
+    (*ptr)[255] = '\0'; 
+
+    return 0; // Success
 }
 
 int write_joke(char arr[255], int joke_length) {
