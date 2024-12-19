@@ -13,22 +13,6 @@
 pthread_mutex_t eeprom_mutex;
 
 // Funktioner för trådar
-void* temperature_thread(void* arg) {
-    while (1) {
-        pthread_mutex_lock(&eeprom_mutex);
-        float temp = get_cpu_temperature(); // Implementera denna funktion
-        if (temp <= 85.0) {
-            // Stäng av alla LEDs
-            set_led_state(0, 0);
-        } else {
-            // Tänd alla LEDs
-            set_led_state(1, 1);
-        }
-        pthread_mutex_unlock(&eeprom_mutex);
-        sleep(2); // Justera efter behov
-    }
-    return NULL;
-}
 
 void* write_jokes_thread(void* arg) {
     while (1) {
@@ -90,11 +74,7 @@ int main() {
     }
 
     // Skapa trådar
-    pthread_t temp_thread, write_thread, read_thread, led1_thread, led2_thread;
-    if (pthread_create(&temp_thread, NULL, temperature_thread, NULL) != 0) {
-        printf("Misslyckades att skapa temperature_thread\n");
-        return 1;
-    }
+    pthread_t write_thread, read_thread, led1_thread, led2_thread;
 
     if (pthread_create(&write_thread, NULL, write_jokes_thread, NULL) != 0) {
         printf("Misslyckades att skapa write_jokes_thread\n");
@@ -118,7 +98,6 @@ int main() {
     }
 
     // Vänta på trådarna (de körs i oändlighet)
-    pthread_join(temp_thread, NULL);
     pthread_join(write_thread, NULL);
     pthread_join(read_thread, NULL);
     pthread_join(led1_thread, NULL);
