@@ -93,7 +93,7 @@ if (address >= EEPROM_SIZE) {
 int write_joke(char arr[255], int joke_length) {
     set_wp(false);  // Disable write protection for writing
     int result = write_joke_pos(arr, joke_length, 0); // Example position
-    set_wp(true);   // Re-enable write protection
+    set_wp(false);   // Re-enable write protection
     return result;
 }
 
@@ -107,10 +107,12 @@ int write_joke_pos(char arr[255], int joke_length, int pos) {
     int remaining = joke_length;       // Number of bytes left to write
     int offset = 0;                    // Offset into the data
 
-            // Declare the buffer for the current page
-        unsigned char buffer[PAGE_SIZE];
+
 
     while (remaining > 0) {
+
+                    // Declare the buffer for the current page
+        unsigned char buffer[PAGE_SIZE];
 
 
         // Determine how many bytes to write in this chunk
