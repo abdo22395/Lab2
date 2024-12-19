@@ -18,9 +18,18 @@ void* write_jokes_thread(void* arg) {
     while (1) {
         pthread_mutex_lock(&eeprom_mutex);
        char arr[255];
-memset(arr, 0, 255);
-strcpy(arr, "hello this is grupp 20 hi daniel");
-// Write the full 255 bytes, ensuring trailing zeros.
+memset(arr, 'A', 255);
+arr[254] = 'A'; // Ensure last character also 'A'
+write_joke(arr, 255); // Write a full block of 'A's
+
+// Immediately try reading it back:
+char* joke;
+if (get_joke(0, &joke) == 0) {
+    printf("Läst skämt: %s\n", joke);
+    free(joke);
+} else {
+    printf("Ingen skämt hittades eller läsfel\n");
+}
 if (write_joke(arr, 255) != 0) {
     printf("Misslyckades att skriva skämt till EEPROM\n");
 }
