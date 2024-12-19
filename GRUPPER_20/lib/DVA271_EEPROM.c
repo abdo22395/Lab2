@@ -80,13 +80,7 @@ int eeprom_setup() {
         perror("Failed to acquire bus access and/or talk to slave");
         return 2;
     }
-    if (wp_init() != 0) {
-        printf("Failed to initialize WP pin\n");
-        return 3;
-    }
 
-    // Enable write protection by default (adjust logic depending on EEPROM and circuit)
-    set_wp(true); 
     return 0;
 }
 
@@ -129,9 +123,7 @@ int write_joke(char arr[255], int joke_length) {
     // Zero out the entire array before writing
     memset(arr + joke_length, 0, 255 - joke_length);
 
-    set_wp(false);
     int result = write_joke_pos(arr, 255, 0); // Always write full 255 bytes
-    set_wp(true);
     return result;
 }
 
