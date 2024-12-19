@@ -23,6 +23,11 @@ static struct gpiod_line *led1_line, *led2_line;
 static struct gpiod_line *wp_line;
 
 int wp_init() {
+        chip = gpiod_chip_open("/dev/gpiochip0");
+    if (!chip) {
+        perror("gpiod_chip_open");
+        return 1;
+    }
     wp_line = gpiod_chip_get_line(chip, WP_PIN);
     if (!wp_line) {
         perror("gpiod_chip_get_line");
