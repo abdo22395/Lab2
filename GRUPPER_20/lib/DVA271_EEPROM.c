@@ -130,8 +130,6 @@ int write_joke_pos(char arr[255], int joke_length, int pos) {
     return 0; // Success
 }
 
-    return 0;
-}
 
 
 
