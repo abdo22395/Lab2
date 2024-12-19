@@ -3,9 +3,6 @@
 
 #include <stdbool.h>
 
-#ifdef __cplusplus
-extern "C" {
-#endif
 
 // For a 24C08-like EEPROM: 
 // Total size = 1024 bytes (8Kbit)
@@ -31,8 +28,5 @@ int clear_eeprom(int ki_length);
 // Fill a section of the EEPROM with byte value 1 (for testing)
 int fill_eeprom(int ki_length);
 
-#ifdef __cplusplus
-}
-#endif
 
 #endif // DVA271_EEPROM_H
