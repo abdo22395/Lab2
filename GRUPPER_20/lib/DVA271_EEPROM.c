@@ -91,34 +91,48 @@ if (address >= EEPROM_SIZE) {
 }
 
 int write_joke(char arr[255], int joke_length) {
-    set_wp(false);  // Disable write protection for writing
-    int result = write_joke_pos(arr, joke_length, 0); // Example position
-    set_wp(false);   // Re-enable write protection
+    // Ensure we don't exceed the buffer size
+    if (joke_length > 255) {
+        printf("Error: joke_length exceeds buffer size of 255.\n");
+        return 1;
+    }
+    
+    // Disable write protection before write operations
+    set_wp(false);
+    
+    // Write at position 0 (start)
+    int result = write_joke_pos(arr, joke_length, 0);
+
+    // Re-enable write protection after writing
+    set_wp(true);
+
     return result;
 }
 
 int write_joke_pos(char arr[255], int joke_length, int pos) {
-    if (pos < 0 || pos * 255 >= EEPROM_SIZE) {
-        printf("Error: Invalid position or address out of range\n");
+    // Check if the start position is valid
+    if (pos < 0) {
+        printf("Error: Invalid position (negative)\n");
+        return 1;
+    }
+    
+    unsigned short address = pos * 255;
+    // Check if the end of the data would exceed EEPROM bounds
+    if (address + joke_length > EEPROM_SIZE) {
+        printf("Error: Address out of EEPROM range\n");
         return 1;
     }
 
-    unsigned short address = pos * 255; // Calculate the starting address
-    int remaining = joke_length;       // Number of bytes left to write
-    int offset = 0;                    // Offset into the data
-
-
+    int remaining = joke_length;
+    int offset = 0;
 
     while (remaining > 0) {
-
-                    // Declare the buffer for the current page
         unsigned char buffer[PAGE_SIZE];
 
-
-        // Determine how many bytes to write in this chunk
+        // Determine the number of bytes to write in this chunk
         int write_length = (remaining > PAGE_SIZE) ? PAGE_SIZE : remaining;
 
-        // Copy the relevant part of the joke into the buffer
+        // Copy data into the buffer
         memcpy(buffer, arr + offset, write_length);
 
         // Write the buffer to the EEPROM
@@ -127,7 +141,7 @@ int write_joke_pos(char arr[255], int joke_length, int pos) {
             return 1;
         }
 
-        // Update the remaining bytes, offset, and address
+        // Update for next iteration
         offset += write_length;
         remaining -= write_length;
     }
