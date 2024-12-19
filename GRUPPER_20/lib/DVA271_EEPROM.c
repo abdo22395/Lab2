@@ -71,7 +71,7 @@ int eeprom_setup() {
 int get_joke(int number, char **ptr) {
     if (number < 0) return -1;
 
-    set_wp(true);  // Ensure write protection is enabled
+    set_wp(false);  // Ensure write protection is enabled
 
     unsigned short address = number * 255; // Each joke takes 255 bytes
     unsigned char buffer[255];
