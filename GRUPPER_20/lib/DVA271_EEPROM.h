@@ -7,23 +7,25 @@
 extern "C" {
 #endif
 
-// Adjust these as per your EEPROM specifications
-#define EEPROM_SIZE 32768     // Total size (32KB example)
-#define PAGE_SIZE 64          // Page size of the EEPROM
+// For a 24C08-like EEPROM: 
+// Total size = 1024 bytes (8Kbit)
+// Organized as 4 blocks of 256 bytes each at addresses 0x50,0x51,0x52,0x53
+#define EEPROM_SIZE 1024
+#define BLOCK_SIZE 256
+#define PAGE_SIZE 16   // Typical page size for small EEPROM
 
-// Initialize the EEPROM (open I2C bus)
 int eeprom_setup();
 
-// Write a joke (string) to the EEPROM at position 0
+// Write a joke (string) to EEPROM at position 0
 int write_joke(char arr[255], int joke_length);
 
-// Write a joke at a specified position
+// Write a joke at a specified position (each joke 255 bytes)
 int write_joke_pos(char arr[255], int joke_length, int pos);
 
 // Read a joke from a given position
 int get_joke(int number, char **ptr);
 
-// Clear a section of the EEPROM (fill with zeroes)
+// Clear a section of the EEPROM (fill with zeros)
 int clear_eeprom(int ki_length);
 
 // Fill a section of the EEPROM with byte value 1 (for testing)
