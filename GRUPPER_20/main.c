@@ -17,7 +17,6 @@ pthread_mutex_t eeprom_mutex;
 void* write_jokes_thread(void* arg) {
     while (1) {
         pthread_mutex_lock(&eeprom_mutex);
-        fill_eeprom(32768);
         char joke[255] = "hello this is grupp 20 hi daniel";
         joke[strlen(joke)] = '\0'; // Ensure null termination
         if (write_joke(joke, strlen(joke)) != 0) {
