@@ -42,7 +42,7 @@ void* read_jokes_thread(void* arg) {
             printf("Ingen skämt hittades eller läsfel\n");
         }
         pthread_mutex_unlock(&eeprom_mutex);
-        sleep(10); // Justera efter behov
+        sleep(1); // Justera efter behov
     }
     return NULL;
 }
