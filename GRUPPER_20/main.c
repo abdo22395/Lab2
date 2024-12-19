@@ -15,14 +15,22 @@ pthread_mutex_t eeprom_mutex;
 void* write_jokes_thread(void* arg) {
     while (1) {
         pthread_mutex_lock(&eeprom_mutex);
-char arr[255];
-memset(arr, 'A', 255);
-arr[254] = 'A';
-write_joke(arr, 255);
 
-if (write_joke(arr, 255) != 0) {
-    printf("Misslyckades att skriva skämt till EEPROM\n");
-}
+        char arr[255];
+        memset(arr, 0, 255);
+        // Your joke can be any string. Let's use a short example:
+        const char *joke = "Why did the programmer quit his job? Because he didn't get arrays!";
+        size_t joke_len = strlen(joke);
+        if (joke_len > 255) {
+            // Truncate if too long
+            joke_len = 255;
+        }
+        memcpy(arr, joke, joke_len);
+        
+        if (write_joke(arr, (int)joke_len) != 0) {
+            printf("Misslyckades att skriva skämt till EEPROM\n");
+        }
+
         pthread_mutex_unlock(&eeprom_mutex);
         sleep(1); // Justera efter behov
     }
