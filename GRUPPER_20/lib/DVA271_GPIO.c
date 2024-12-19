@@ -57,30 +57,7 @@ int hc595_init() {
     return 0;
 }
 
-int temp_indicate(float temperature) {
-    // Här kan du implementera hur temperaturen representeras via HC595
-    // Exempel: Skicka binärvärdet av temperaturen till registret
-    unsigned int temp_int = (unsigned int)temperature;
-    for (int i = 0; i < 8; i++) {
-        int bit = (temp_int >> i) & 1;
-        gpiod_line_set_value(data_line, bit);
-        gpiod_line_set_value(clock_line, 1);
-        usleep(1000);
-        gpiod_line_set_value(clock_line, 0);
-    }
 
-    // Latch the data
-    gpiod_line_set_value(latch_line, 1);
-    usleep(1000);
-    gpiod_line_set_value(latch_line, 0);
-
-    return 0;
-}
-
-int gpio_init(int pin, bool output) {
-    // Denna funktion används inte i detta exempel, men kan implementeras vid behov
-    return 0;
-}
 
 int flip_pin(int pin) {
     struct gpiod_line *line;
@@ -96,18 +73,6 @@ int flip_pin(int pin) {
     if (value < 0) return 1;
     gpiod_line_set_value(line, !value);
     return 0;
-}
-
-float get_cpu_temperature() {
-    FILE *fp = fopen("/sys/class/thermal/thermal_zone0/temp", "r");
-    if (!fp) {
-        perror("fopen");
-        return -1.0;
-    }
-    int temp_milli;
-    fscanf(fp, "%d", &temp_milli);
-    fclose(fp);
-    return temp_milli / 1000.0;
 }
 
 int set_led_state(int led1, int led2) {
