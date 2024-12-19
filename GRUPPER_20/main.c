@@ -19,6 +19,7 @@ void* write_jokes_thread(void* arg) {
         pthread_mutex_lock(&eeprom_mutex);
         fill_eeprom(8000);
         char joke[255] = "hello this is grupp 20 hi daniel";
+        joke[strlen(joke)] = '\0'; // Ensure null termination
         if (write_joke(joke, strlen(joke)) != 0) {
             printf("Misslyckades att skriva skämt till EEPROM\n");
         }
