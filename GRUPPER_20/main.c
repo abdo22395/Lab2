@@ -34,7 +34,7 @@ void* write_jokes_thread(void* arg) {
     while (1) {
         pthread_mutex_lock(&eeprom_mutex);
         fill_eeprom(8000);
-        char joke[255] = "hello";
+        char joke[255] = "hello this is grupp 20 hi daniel";
         if (write_joke(joke, strlen(joke)) != 0) {
             printf("Misslyckades att skriva skämt till EEPROM\n");
         }
