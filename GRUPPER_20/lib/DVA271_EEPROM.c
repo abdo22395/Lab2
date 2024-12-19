@@ -69,25 +69,28 @@ int eeprom_setup() {
 
 int get_joke(int number, char **ptr) {
     if (number < 0) return -1;
-    unsigned short address = number * 255; // Antag att varje skämt tar 255 bytes
+
+    set_wp(true);  // Ensure write protection is enabled
+
+    unsigned short address = number * 255; // Each joke takes 255 bytes
     unsigned char buffer[255];
     if (i2c_read_data(address, buffer, 255) != 0) {
         return -1;
     }
-    // Allokera minne och kopiera skämtet
+
     *ptr = malloc(256);
     if (*ptr == NULL) return -1;
-    strncpy(*ptr, (char*)buffer, 255);
+    strncpy(*ptr, (char *)buffer, 255);
     (*ptr)[255] = '\0';
+
     return 0;
 }
 
 int write_joke(char arr[255], int joke_length) {
-    static int current_pos = 0;
-    if (current_pos * 255 >= EEPROM_SIZE) {
-        current_pos = 0; // Återställ till början
-    }
-    return write_joke_pos(arr, joke_length, current_pos++);
+    set_wp(false);  // Disable write protection for writing
+    int result = write_joke_pos(arr, joke_length, 0); // Example position
+    set_wp(true);   // Re-enable write protection
+    return result;
 }
 
 int write_joke_pos(char arr[255], int joke_length, int pos) {
