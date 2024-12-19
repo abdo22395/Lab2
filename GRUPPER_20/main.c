@@ -37,7 +37,7 @@ void* read_jokes_thread(void* arg) {
         char* joke;
         if (get_joke(0, &joke) == 0) { // 0 kan representera den första vitsen
             printf("Läst skämt: %s\n", joke);
-            free(joke);
+
         } else {
             printf("Ingen skämt hittades eller läsfel\n");
         }
