@@ -3,9 +3,8 @@
 
 #include <stdbool.h>
 
-
-// For a 24C08-like EEPROM: 
-// Total size = 1024 bytes (8Kbit)
+// For a 24C08-like EEPROM (8 Kbit):
+// Total size = 1024 bytes
 // Organized as 4 blocks of 256 bytes each at addresses 0x50,0x51,0x52,0x53
 #define EEPROM_SIZE 1024
 #define BLOCK_SIZE 256
@@ -27,6 +26,5 @@ int clear_eeprom(int ki_length);
 
 // Fill a section of the EEPROM with byte value 1 (for testing)
 int fill_eeprom(int ki_length);
-
 
 #endif // DVA271_EEPROM_H
