@@ -8,11 +8,10 @@ extern "C" {
 #endif
 
 // Adjust these as per your EEPROM specifications
-#define EEPROM_ADDRESS 0x50
-#define EEPROM_SIZE 32768
-#define PAGE_SIZE 64
+#define EEPROM_SIZE 32768     // Total size (32KB example)
+#define PAGE_SIZE 64          // Page size of the EEPROM
 
-// Initialize the EEPROM (open I2C bus, set WP pin)
+// Initialize the EEPROM (open I2C bus)
 int eeprom_setup();
 
 // Write a joke (string) to the EEPROM at position 0
