@@ -101,30 +101,33 @@ int write_joke_pos(char arr[255], int joke_length, int pos) {
         return 1;
     }
 
-    unsigned short address = pos * 255; // Starting address
-    int remaining = joke_length;       // Bytes left to write
-    int offset = 0;                    // Offset into the joke data
-
-    // Allocate a buffer for the page writes
-    unsigned char buffer[PAGE_SIZE]; 
+    unsigned short address = pos * 255; // Calculate the starting address
+    int remaining = joke_length;       // Number of bytes left to write
+    int offset = 0;                    // Offset into the data
 
     while (remaining > 0) {
-        // Determine how many bytes to write in this iteration
+        // Declare the buffer for the current page
+        unsigned char buffer[PAGE_SIZE];
+
+        // Determine how many bytes to write in this chunk
         int write_length = (remaining > PAGE_SIZE) ? PAGE_SIZE : remaining;
 
-        // Copy the data for the current page into the buffer
+        // Copy the relevant part of the joke into the buffer
         memcpy(buffer, arr + offset, write_length);
 
-        // Write the current page to the EEPROM
+        // Write the buffer to the EEPROM
         if (i2c_write_data(address + offset, buffer, write_length) != 0) {
-            printf("Error: Failed to write to EEPROM\n");
+            printf("Error: Failed to write to EEPROM at address 0x%04X\n", address + offset);
             return 1;
         }
 
-        // Update remaining bytes, offset, and address
+        // Update the remaining bytes, offset, and address
         offset += write_length;
         remaining -= write_length;
     }
+
+    return 0; // Success
+}
 
     return 0;
 }
