@@ -12,15 +12,13 @@
 // Mutex för EEPROM-åtkomst
 pthread_mutex_t eeprom_mutex;
 
-// Funktioner för trådar
-
 void* write_jokes_thread(void* arg) {
     while (1) {
         pthread_mutex_lock(&eeprom_mutex);
 char arr[255];
 memset(arr, 'A', 255);
-arr[254] = 'A'; // Ensure last character also 'A'
-write_joke(arr, 255); // Write a full block of 'A's
+arr[254] = 'A';
+write_joke(arr, 255);
 
 if (write_joke(arr, 255) != 0) {
     printf("Misslyckades att skriva skämt till EEPROM\n");
@@ -36,7 +34,7 @@ void* read_jokes_thread(void* arg) {
          sleep(1);
         pthread_mutex_lock(&eeprom_mutex);
         char* joke;
-        if (get_joke(0, &joke) == 0) { // 0 kan representera den första vitsen
+        if (get_joke(0, &joke) == 0) { 
             printf("Läst skämt: %s\n", joke);
 
         } else {
