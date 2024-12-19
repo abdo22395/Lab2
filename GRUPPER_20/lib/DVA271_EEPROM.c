@@ -10,9 +10,9 @@
 #include <fcntl.h>
 #include <unistd.h>
 
-#define EEPROM_ADDRESS 0x50 // Justera efter din EEPROM-adress
-#define EEPROM_SIZE 32768    // Exempelstorlek, justera efter din EEPROM
-#define PAGE_SIZE 64        // Exempel sidstorlek, justera efter din EEPROM
+#define EEPROM_ADDRESS 0x50 // Adjust according to your EEPROM address
+#define EEPROM_SIZE 32768    // Example size, adjust according to your EEPROM
+#define PAGE_SIZE 64         // Example page size, adjust according to your EEPROM
 
 static int file;
 
@@ -27,26 +27,44 @@ static int i2c_write_data(unsigned short address, unsigned char *data, int lengt
         perror("Failed to write to the i2c bus");
         return -1;
     }
-    // EEPROM skrivtider
-    usleep(500000); // 50 ms, justera enligt din EEPROM-spec
+
+    // EEPROM skrivtid - justera efter din EEPROM-spec
+    usleep(500000); // 50 ms
     return 0;
 }
 
-// Funktion för att läsa från I2C
+// Funktion för att läsa från I2C med korrekt upprepat startvillkor (repeated start)
 static int i2c_read_data(unsigned short address, unsigned char *data, int length) {
     unsigned char addr_buffer[2];
     addr_buffer[0] = (address >> 8) & 0xFF;
     addr_buffer[1] = address & 0xFF;
 
-    if (write(file, addr_buffer, 2) != 2) {
-        perror("Failed to write address to the i2c bus");
-        return -1;
-    }
+    // We will use I2C_RDWR ioctl with two messages:
+    // Message 1: Write the address bytes
+    // Message 2: Read the requested number of bytes
+    // This ensures a repeated start condition required by the EEPROM.
 
-    if (read(file, data, length) != length) {
+    struct i2c_rdwr_ioctl_data packets;
+    struct i2c_msg messages[2];
+
+    messages[0].addr  = EEPROM_ADDRESS;
+    messages[0].flags = 0;             // Write
+    messages[0].len   = 2;
+    messages[0].buf   = addr_buffer;
+
+    messages[1].addr  = EEPROM_ADDRESS;
+    messages[1].flags = I2C_M_RD;      // Read
+    messages[1].len   = length;
+    messages[1].buf   = data;
+
+    packets.msgs      = messages;
+    packets.nmsgs     = 2;
+
+    if (ioctl(file, I2C_RDWR, &packets) < 0) {
         perror("Failed to read from the i2c bus");
         return -1;
     }
+
     return 0;
 }
 
@@ -64,16 +82,14 @@ int eeprom_setup() {
         printf("Failed to initialize WP pin\n");
         return 3;
     }
-    set_wp(true); // Enable write protection by default
+
+    // Enable write protection by default (adjust logic depending on EEPROM and circuit)
+    set_wp(true); 
     return 0;
 }
 
 int get_joke(int number, char **ptr) {
     if (number < 0) return -1;
-
-    // For reading, write protection isn't usually an issue, but if needed:
-    // set_wp(true); // If true enables write-protection (assuming true means protection on)
-    // If write protection is irrelevant to reading, just omit this line.
 
     unsigned short address = number * 255;
     if (address + 255 > EEPROM_SIZE) {
@@ -81,7 +97,7 @@ int get_joke(int number, char **ptr) {
         return -1;
     }
 
-    unsigned char buffer[255]; // We'll read exactly 255 bytes of a joke
+    unsigned char buffer[255]; // We'll read exactly 255 bytes of the joke
     // Read the data from EEPROM into buffer
     if (i2c_read_data(address, buffer, 255) != 0) {
         printf("Error: Failed to read the joke from EEPROM\n");
@@ -97,7 +113,7 @@ int get_joke(int number, char **ptr) {
 
     // Copy the data into the allocated memory and add a null terminator
     memcpy(*ptr, buffer, 255);
-    (*ptr)[255] = '\0'; 
+    (*ptr)[255] = '\0';
 
     return 0; // Success
 }
@@ -108,10 +124,10 @@ int write_joke(char arr[255], int joke_length) {
         printf("Error: joke_length exceeds buffer size of 255.\n");
         return 1;
     }
-    
+
     // Disable write protection before write operations
     set_wp(false);
-    
+
     // Write at position 0 (start)
     int result = write_joke_pos(arr, joke_length, 0);
 
@@ -127,7 +143,7 @@ int write_joke_pos(char arr[255], int joke_length, int pos) {
         printf("Error: Invalid position (negative)\n");
         return 1;
     }
-    
+
     unsigned short address = pos * 255;
     // Check if the end of the data would exceed EEPROM bounds
     if (address + joke_length > EEPROM_SIZE) {
@@ -160,9 +176,6 @@ int write_joke_pos(char arr[255], int joke_length, int pos) {
 
     return 0; // Success
 }
-
-
-
 
 int clear_eeprom(int ki_length) {
     unsigned char *buffer = malloc(ki_length);
