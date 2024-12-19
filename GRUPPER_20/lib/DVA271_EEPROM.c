@@ -28,7 +28,7 @@ static int i2c_write_data(unsigned short address, unsigned char *data, int lengt
         return -1;
     }
     // EEPROM skrivtider
-    usleep(50000); // 50 ms, justera enligt din EEPROM-spec
+    usleep(500000); // 50 ms, justera enligt din EEPROM-spec
     return 0;
 }
 
