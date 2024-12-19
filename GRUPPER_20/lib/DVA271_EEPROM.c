@@ -78,6 +78,8 @@ if (address >= EEPROM_SIZE) {
     printf("Error: Address out of range\n");
     return -1;
 }
+                // Declare the buffer for the current page
+        unsigned char buffer[PAGE_SIZE];
 
 
     *ptr = malloc(256);
