@@ -73,11 +73,12 @@ int get_joke(int number, char **ptr) {
 
     set_wp(false);  // Ensure write protection is enabled
 
-    unsigned short address = number * 255; // Each joke takes 255 bytes
-    unsigned char buffer[255];
-    if (i2c_read_data(address, buffer, 255) != 0) {
-        return -1;
-    }
+    unsigned short address = number * 255;
+if (address >= EEPROM_SIZE) {
+    printf("Error: Address out of range\n");
+    return -1;
+}
+
 
     *ptr = malloc(256);
     if (*ptr == NULL) return -1;
@@ -96,9 +97,25 @@ int write_joke(char arr[255], int joke_length) {
 
 int write_joke_pos(char arr[255], int joke_length, int pos) {
     if (pos < 0 || pos * 255 >= EEPROM_SIZE) return 1;
+
     unsigned short address = pos * 255;
-    return i2c_write_data(address, (unsigned char*)arr, joke_length);
+    int remaining = joke_length;
+    int offset = 0;
+
+    while (remaining > 0) {
+        int write_length = remaining > PAGE_SIZE ? PAGE_SIZE : remaining;
+
+        if (i2c_write_data(address + offset, (unsigned char *)arr + offset, write_length) != 0) {
+            return 1;
+        }
+
+        offset += write_length;
+        remaining -= write_length;
+    }
+
+    return 0;
 }
+
 
 int clear_eeprom(int ki_length) {
     unsigned char *buffer = malloc(ki_length);
