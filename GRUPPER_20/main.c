@@ -17,12 +17,13 @@ pthread_mutex_t eeprom_mutex;
 void* write_jokes_thread(void* arg) {
     while (1) {
         pthread_mutex_lock(&eeprom_mutex);
-        char joke[255];
-        memset(joke, 0, sizeof(joke));
-        strcpy(joke, "hello this is grupp 20 hi daniel\0");
-        if (write_joke(joke, strlen(joke)) != 0) {
-            printf("Misslyckades att skriva skämt till EEPROM\n");
-        }
+       char arr[255];
+memset(arr, 0, 255);
+strcpy(arr, "hello this is grupp 20 hi daniel");
+// Write the full 255 bytes, ensuring trailing zeros.
+if (write_joke(arr, 255) != 0) {
+    printf("Misslyckades att skriva skämt till EEPROM\n");
+}
         pthread_mutex_unlock(&eeprom_mutex);
         sleep(10); // Justera efter behov
     }
