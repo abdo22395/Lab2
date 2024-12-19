@@ -121,23 +121,20 @@ int get_joke(int number, char **ptr) {
 }
 
 int write_joke(char arr[255], int joke_length) {
-    // Ensure we don't exceed the buffer size
     if (joke_length > 255) {
         printf("Error: joke_length exceeds buffer size of 255.\n");
         return 1;
     }
 
-    // Disable write protection before write operations
+    // Zero out the entire array before writing
+    memset(arr + joke_length, 0, 255 - joke_length);
+
     set_wp(false);
-
-    // Write at position 0 (start)
-    int result = write_joke_pos(arr, joke_length, 0);
-
-    // Re-enable write protection after writing
+    int result = write_joke_pos(arr, 255, 0); // Always write full 255 bytes
     set_wp(true);
-
     return result;
 }
+
 
 int write_joke_pos(char arr[255], int joke_length, int pos) {
     // Check if the start position is valid
