@@ -58,7 +58,7 @@ void* write_jokes_thread(void* arg) {
 }
 void* read_jokes_thread(void* arg) {
     while (1) {
-         sleep(1);
+         
         pthread_mutex_lock(&eeprom_mutex);
         char* joke;
         if (get_joke(0, &joke) == 0) { 
@@ -69,6 +69,7 @@ void* read_jokes_thread(void* arg) {
         }
         pthread_mutex_unlock(&eeprom_mutex);
         // Justera efter behov
+        sleep(1);
     }
     return NULL;
 }
