@@ -87,7 +87,7 @@ int eeprom_setup() {
 int get_joke(int number, char **ptr) {
     if (number < 0) return -1;
 
-    unsigned short address = number * 32768;
+    unsigned short address = number * 255;
     if (address + 255 > EEPROM_SIZE) {
         printf("Error: Address out of range\n");
         return -1;
@@ -95,13 +95,13 @@ int get_joke(int number, char **ptr) {
 
     unsigned char buffer[255]; // We'll read exactly 255 bytes of the joke
     // Read the data from EEPROM into buffer
-    if (i2c_read_data(address, buffer, 32768) != 0) {
+    if (i2c_read_data(address, buffer, 255) != 0) {
         printf("Error: Failed to read the joke from EEPROM\n");
         return -1;
     }
 
     // Allocate memory to return the joke
-    *ptr = malloc(32768); // 255 bytes + null terminator
+    *ptr = malloc(255); // 255 bytes + null terminator
     if (*ptr == NULL) {
         printf("Error: Memory allocation failed\n");
         return -1;
