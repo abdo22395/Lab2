@@ -34,7 +34,7 @@ void* read_jokes_thread(void* arg) {
     while (1) {
         pthread_mutex_lock(&eeprom_mutex);
         char* joke;
-        if (get_joke(1, &joke) == 0) { // 0 kan representera den första vitsen
+        if (get_joke(0, &joke) == 0) { // 0 kan representera den första vitsen
             printf("Läst skämt: %s\n", joke);
             free(joke);
         } else {
