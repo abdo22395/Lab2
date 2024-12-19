@@ -1,7 +1,6 @@
 #include "DVA271_EEPROM.h"
 #include <stdio.h>
 #include <stdlib.h>
-#include <stdbool.h>
 #include <string.h>
 #include <linux/i2c-dev.h>
 #include <sys/ioctl.h>
@@ -11,32 +10,30 @@
 
 static int file;
 
-// Each block is 8KB for a total of 32KB across addresses 0x50 - 0x53
-#define BLOCK_SIZE 8192
+// Base address of the first EEPROM block (0x50)
 #define EEPROM_BASE_ADDRESS 0x50
 
-// Polls the EEPROM until it is ready after a write
-// Returns 0 when ready, -1 on timeout
+// Wait for the EEPROM write cycle to complete by polling for ACK
 static int wait_for_eeprom(unsigned char chip_address) {
+    // Set the device address and try zero-length writes until ACK received
     for (int i = 0; i < 100; i++) {
-        // Set the slave address again for each poll
         if (ioctl(file, I2C_SLAVE, chip_address) < 0) {
             perror("Failed to set I2C address for polling");
             return -1;
         }
 
-        // A zero-length write tests for ACK
         if (write(file, NULL, 0) >= 0) {
-            return 0; // Acknowledged, EEPROM ready
+            // ACK means ready
+            return 0;
         }
-        usleep(5000); // Wait 5ms before retry
+        usleep(5000); // 5ms delay
     }
     fprintf(stderr, "EEPROM did not become ready in time\n");
     return -1;
 }
 
-// Compute which chip and internal address to use based on full memory address
-static int select_chip_and_address(unsigned short full_address, unsigned char *chip_address, unsigned short *int_addr) {
+// Determine which chip and byte address within the chip for a given full address
+static int select_chip_and_address(unsigned short full_address, unsigned char *chip_address, unsigned char *int_addr) {
     if (full_address >= EEPROM_SIZE) {
         fprintf(stderr, "Address out of EEPROM range\n");
         return -1;
@@ -48,31 +45,29 @@ static int select_chip_and_address(unsigned short full_address, unsigned char *c
     return 0;
 }
 
-// Write data to the EEPROM at a given absolute address (handle multiple chips)
+// Write data to EEPROM at a given absolute address (single-byte addressing)
 static int i2c_write_data(unsigned short full_address, const unsigned char *data, int length) {
     unsigned char chip_address;
-    unsigned short int_addr;
+    unsigned char int_addr;
     if (select_chip_and_address(full_address, &chip_address, &int_addr) < 0) {
         return -1;
     }
 
-    // Set the slave address for this transaction
     if (ioctl(file, I2C_SLAVE, chip_address) < 0) {
         perror("Failed to set I2C slave address");
         return -1;
     }
 
-    unsigned char buffer[2 + length];
-    buffer[0] = (int_addr >> 8) & 0xFF;
-    buffer[1] = int_addr & 0xFF;
-    memcpy(&buffer[2], data, length);
+    unsigned char buffer[1 + length];
+    buffer[0] = int_addr; // single address byte
+    memcpy(&buffer[1], data, length);
 
-    if (write(file, buffer, 2 + length) != (2 + length)) {
+    if (write(file, buffer, 1 + length) != (1 + length)) {
         perror("Failed to write to the i2c bus");
         return -1;
     }
 
-    // Wait for internal write cycle
+    // Wait for write cycle completion
     if (wait_for_eeprom(chip_address) != 0) {
         return -1;
     }
@@ -80,10 +75,10 @@ static int i2c_write_data(unsigned short full_address, const unsigned char *data
     return 0;
 }
 
-// Read data from EEPROM (with repeated start) at a given absolute address
+// Read data from EEPROM at a given absolute address (single-byte addressing)
 static int i2c_read_data(unsigned short full_address, unsigned char *data, int length) {
     unsigned char chip_address;
-    unsigned short int_addr;
+    unsigned char int_addr;
     if (select_chip_and_address(full_address, &chip_address, &int_addr) < 0) {
         return -1;
     }
@@ -94,28 +89,16 @@ static int i2c_read_data(unsigned short full_address, unsigned char *data, int l
         return -1;
     }
 
-    unsigned char addr_buffer[2];
-    addr_buffer[0] = (int_addr >> 8) & 0xFF;
-    addr_buffer[1] = int_addr & 0xFF;
+    // Write the internal address pointer
+    unsigned char addr_buf = int_addr;
+    if (write(file, &addr_buf, 1) != 1) {
+        perror("Failed to set EEPROM read address");
+        return -1;
+    }
 
-    struct i2c_rdwr_ioctl_data packets;
-    struct i2c_msg messages[2];
-
-    messages[0].addr  = chip_address;
-    messages[0].flags = 0;             // Write address
-    messages[0].len   = 2;
-    messages[0].buf   = addr_buffer;
-
-    messages[1].addr  = chip_address;
-    messages[1].flags = I2C_M_RD;      // Read data
-    messages[1].len   = length;
-    messages[1].buf   = data;
-
-    packets.msgs      = messages;
-    packets.nmsgs     = 2;
-
-    if (ioctl(file, I2C_RDWR, &packets) < 0) {
-        perror("Failed to read from the i2c bus");
+    // Read data
+    if (read(file, data, length) != length) {
+        perror("Failed to read from EEPROM");
         return -1;
     }
 
@@ -128,21 +111,21 @@ int eeprom_setup() {
         perror("Failed to open the i2c bus");
         return 1;
     }
-
-    // Since we are no longer handling WP in software, nothing else needed here
+    // No WP handling, assume WP handled externally
     return 0;
 }
 
 int get_joke(int number, char **ptr) {
     if (number < 0) return -1;
 
+    // Each "joke" is 255 bytes
     unsigned short address = number * 255;
     if (address + 255 > EEPROM_SIZE) {
         printf("Error: Address out of range\n");
         return -1;
     }
 
-    unsigned char buffer[255]; 
+    unsigned char buffer[255];
     if (i2c_read_data(address, buffer, 255) != 0) {
         printf("Error: Failed to read the joke from EEPROM\n");
         return -1;
@@ -167,9 +150,8 @@ int write_joke(char arr[255], int joke_length) {
 
     memset(arr + joke_length, 0, 255 - joke_length);
 
-    // WP handling removed - ensure WP is disabled externally before calling
-    int result = write_joke_pos(arr, 255, 0);
-    return result;
+    // Write at position 0
+    return write_joke_pos(arr, 255, 0);
 }
 
 int write_joke_pos(char arr[255], int joke_length, int pos) {
@@ -188,7 +170,7 @@ int write_joke_pos(char arr[255], int joke_length, int pos) {
     int offset = 0;
 
     while (remaining > 0) {
-        int page_offset = (address % PAGE_SIZE);
+        int page_offset = address % PAGE_SIZE;
         int space_in_page = PAGE_SIZE - page_offset;
         int write_length = (remaining < space_in_page) ? remaining : space_in_page;
 
@@ -211,7 +193,6 @@ int clear_eeprom(int ki_length) {
     if (!buffer) return 1;
     memset(buffer, 0, ki_length);
 
-    // WP handling removed - ensure WP is disabled externally
     int result = 0;
     int remaining = ki_length;
     unsigned short address = 0;
@@ -240,7 +221,6 @@ int fill_eeprom(int ki_length) {
     if (!buffer) return 1;
     memset(buffer, 1, ki_length);
 
-    // WP handling removed - ensure WP is disabled externally
     int result = 0;
     int remaining = ki_length;
     unsigned short address = 0;
