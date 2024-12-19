@@ -30,10 +30,6 @@ int clear_eeprom(int ki_length);
 // Fill a section of the EEPROM with byte value 1 (for testing)
 int fill_eeprom(int ki_length);
 
-// External functions assumed to be implemented elsewhere:
-int wp_init();
-void set_wp(bool enable);
-
 #ifdef __cplusplus
 }
 #endif
