@@ -9,6 +9,8 @@
 #include <sys/ioctl.h>
 #include <fcntl.h>
 #include <unistd.h>
+#include <linux/i2c-dev.h>
+#include <linux/i2c.h>
 
 #define EEPROM_ADDRESS 0x50 // Adjust according to your EEPROM address
 #define EEPROM_SIZE 32768    // Example size, adjust according to your EEPROM
