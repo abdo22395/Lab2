@@ -22,14 +22,6 @@ memset(arr, 'A', 255);
 arr[254] = 'A'; // Ensure last character also 'A'
 write_joke(arr, 255); // Write a full block of 'A's
 
-// Immediately try reading it back:
-char* joke;
-if (get_joke(0, &joke) == 0) {
-    printf("Läst skämt: %s\n", joke);
-    free(joke);
-} else {
-    printf("Ingen skämt hittades eller läsfel\n");
-}
 if (write_joke(arr, 255) != 0) {
     printf("Misslyckades att skriva skämt till EEPROM\n");
 }
