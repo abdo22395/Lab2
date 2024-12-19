@@ -43,16 +43,13 @@ void* write_jokes_thread(void* arg) {
         // Write the joke to the EEPROM
         if (write_joke(arr, (int)joke_len) != 0) {
             printf("Misslyckades att skriva skämt till EEPROM\n");
-        } else {
-            printf("Skämt skrivet: %s\n", current_joke);
         }
-
         pthread_mutex_unlock(&eeprom_mutex);
 
         // Move to the next joke
         joke_index = (joke_index + 1) % num_jokes;
 
-        sleep(1); // Justera efter behov
+        sleep(2); // Justera efter behov
     }
     return NULL;
 }
@@ -69,7 +66,7 @@ void* read_jokes_thread(void* arg) {
         }
         pthread_mutex_unlock(&eeprom_mutex);
         // Justera efter behov
-        sleep(1);
+        sleep(2);
     }
     return NULL;
 }
