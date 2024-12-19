@@ -18,9 +18,9 @@ void* write_jokes_thread(void* arg) {
     while (1) {
         pthread_mutex_lock(&eeprom_mutex);
        char arr[255];
-memset(arr, 'A', 255);
-arr[254] = 'A'; // Ensure last character also 'A'
-write_joke(arr, 255); // Write a full block of 'A's
+memset(arr, 0, 255);
+strcpy(arr, "Hello, world!");
+write_joke(arr, 255);
 
 if (write_joke(arr, 255) != 0) {
     printf("Misslyckades att skriva skämt till EEPROM\n");
