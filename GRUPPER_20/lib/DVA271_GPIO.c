@@ -12,7 +12,7 @@
 #define CLOCK_PIN 22
 #define LED1_PIN 23
 #define LED2_PIN 24
-#define WP_PIN 25
+
 
 
 #define CHIP_NAME "gpiochip0"
@@ -20,30 +20,10 @@
 static struct gpiod_chip *chip;
 static struct gpiod_line *data_line, *latch_line, *clock_line;
 static struct gpiod_line *led1_line, *led2_line;
-static struct gpiod_line *wp_line;
 
-int wp_init() {
-        chip = gpiod_chip_open("/dev/gpiochip0");
-    if (!chip) {
-        perror("gpiod_chip_open");
-        return 1;
-    }
-    wp_line = gpiod_chip_get_line(chip, WP_PIN);
-    if (!wp_line) {
-        perror("gpiod_chip_get_line");
-        return 1;
-    }
-    if (gpiod_line_request_output(wp_line, "EEPROM_WP", 0) < 0) {
-        perror("gpiod_line_request_output");
-        return 1;
-    }
-    return 0;
-}
 
-int set_wp(bool enable) {
-    if (!wp_line) return 1;
-    return gpiod_line_set_value(wp_line, enable ? 1 : 0);
-}
+
+
 
 int hc595_init() {
     chip = gpiod_chip_open("/dev/gpiochip0");
