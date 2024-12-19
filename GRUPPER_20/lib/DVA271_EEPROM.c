@@ -90,13 +90,6 @@ int eeprom_setup() {
         return 2;
     }
 
-    if (wp_init() != 0) {
-        printf("Failed to initialize WP pin\n");
-        return 3;
-    }
-
-    // Enable write protection by default
-    set_wp(true);
     return 0;
 }
 
@@ -138,10 +131,7 @@ int write_joke(char arr[255], int joke_length) {
     memset(arr + joke_length, 0, 255 - joke_length);
 
     // Disable write protection
-    set_wp(false);
     int result = write_joke_pos(arr, 255, 0);
-    // Re-enable write protection
-    set_wp(true);
 
     return result;
 }
@@ -186,8 +176,6 @@ int clear_eeprom(int ki_length) {
     unsigned char *buffer = malloc(ki_length);
     if (!buffer) return 1;
     memset(buffer, 0, ki_length);
-
-    set_wp(false);
     int result = 0;
     int remaining = ki_length;
     int address = 0;
@@ -206,7 +194,6 @@ int clear_eeprom(int ki_length) {
         remaining -= write_length;
     }
 
-    set_wp(true);
     free(buffer);
     return result;
 }
@@ -217,7 +204,6 @@ int fill_eeprom(int ki_length) {
     if (!buffer) return 1;
     memset(buffer, 1, ki_length);
 
-    set_wp(false);
     int result = 0;
     int remaining = ki_length;
     int address = 0;
@@ -236,7 +222,6 @@ int fill_eeprom(int ki_length) {
         remaining -= write_length;
     }
 
-    set_wp(true);
     free(buffer);
     return result;
 }
