@@ -70,11 +70,6 @@ int main() {
         return 1;
     }
 
-    if (hc595_init() != 0) {
-        printf("HC595 init misslyckades\n");
-        return 1;
-    }
-
     // Skapa trådar
     pthread_t write_thread, read_thread, led1_thread, led2_thread;
 
