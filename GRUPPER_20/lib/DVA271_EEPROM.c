@@ -59,6 +59,11 @@ int eeprom_setup() {
         perror("Failed to acquire bus access and/or talk to slave");
         return 2;
     }
+    if (wp_init() != 0) {
+        printf("Failed to initialize WP pin\n");
+        return 3;
+    }
+    set_wp(true); // Enable write protection by default
     return 0;
 }
 
