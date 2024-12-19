@@ -25,7 +25,7 @@ if (write_joke(arr, 255) != 0) {
     printf("Misslyckades att skriva skämt till EEPROM\n");
 }
         pthread_mutex_unlock(&eeprom_mutex);
-        sleep(10); // Justera efter behov
+        sleep(50000); // Justera efter behov
     }
     return NULL;
 }
